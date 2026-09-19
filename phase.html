@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jairam Yoga Class Observation Log</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#182230;--muted:#667085;--line:#e4e7ec;--accent:#7a1f2b;--green:#137333;--yellow:#b54708;--red:#b42318;--blue:#175cd3}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
+header{background:linear-gradient(135deg,#631824,#9b3141);color:#fff;padding:28px 6%}
+h1{margin:0 0 6px;font-size:26px}header p{margin:0;opacity:.9}
+main{max-width:1300px;margin:auto;padding:24px}
+section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin:18px 0}
+section h2{margin:0 0 4px}
+section .subtitle{margin:0 0 12px;color:var(--muted);font-size:13px}
+label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:12px 0 5px}
+input[type=text],input[type=date],textarea,select{width:100%;padding:10px;border:1px solid #d0d5dd;border-radius:8px;font-family:inherit;font-size:14px}
+textarea{min-height:70px;resize:vertical}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:9px;padding:11px 18px;font-weight:700;cursor:pointer;font-size:14px}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn.secondary{background:#344054}
+.btn.small{padding:7px 12px;font-size:12px}
+.btn.danger{background:var(--red)}
+.btn.outline{background:#fff;color:var(--accent);border:1px solid var(--accent)}
+.upload{border:2px dashed #c9ced8;border-radius:14px;padding:22px;text-align:center;margin-top:8px}
+.preview{max-width:100%;max-height:320px;border-radius:10px;margin-top:12px;display:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;min-height:20px}
+.chip{background:#fee4e2;color:#912018;padding:6px 10px;border-radius:99px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+.chip button{background:none;border:0;color:#912018;cursor:pointer;font-weight:800;font-size:14px;line-height:1;padding:0}
+.tagbox{display:flex;gap:8px;margin-top:8px}
+.tagbox input{flex:1}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.toolbar input,.toolbar select{width:auto;min-width:170px}
+.tablewrap{overflow:auto;max-height:600px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:#f9fafb;z-index:1}
+.thumb{width:70px;height:50px;object-fit:cover;border-radius:6px;cursor:pointer;border:1px solid var(--line)}
+.small{font-size:13px;color:var(--muted)}
+.badge{background:#fee4e2;color:#912018;padding:3px 8px;border-radius:99px;font-size:12px;font-weight:700;display:inline-block;margin:2px 4px 2px 0;cursor:pointer;border:none}
+.badge.repeat{background:var(--red);color:#fff}
+.badge.reason{background:#eaecf0;color:#344054;cursor:default}
+.empty{text-align:center;color:var(--muted);padding:30px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal img{max-width:95vw;max-height:90vh;border-radius:8px}
+.modal .close{position:absolute;top:20px;right:26px;color:#fff;font-size:32px;cursor:pointer;font-weight:700}
+.hint{font-size:12px;color:var(--muted);margin-top:6px}
+.footerbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.card{background:var(--card);border-radius:14px;padding:16px;border:1px solid var(--line)}
+.card.red{border-top:4px solid var(--red)}.card.blue{border-top:4px solid var(--blue)}.card.yellow{border-top:4px solid var(--yellow)}.card.green{border-top:4px solid var(--green)}
+.card .num{font-size:28px;font-weight:800;margin-top:6px}
+.editbar{background:#fef0c7;border:1px solid #eaaa08;border-radius:10px;padding:10px 14px;margin-bottom:10px;display:none;align-items:center;justify-content:space-between}
+.editbar.show{display:flex}
+.syncbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.dot.on{background:var(--green)}.dot.off{background:var(--red)}.dot.loading{background:var(--yellow)}
+@media(max-width:700px){.row3{grid-template-columns:1fr}main{padding:14px}header{padding:22px 14px}}
+</style>
+</head>
+<body>
+<header>
+<h1>Jairam Yoga — Class Observation Log</h1>
+<p>Screenshot ke saath note karo kaun student class mein yoga nahi kar raha tha • Shared data — sab employees ko same dikhta hai, koi setup nahi chahiye</p>
+</header>
+<main>
+
+<section>
+<div class="syncbar">
+<div><span class="dot loading" id="syncDot"></span><b id="syncText">Connecting...</b><div class="small" id="syncSubtext">Shared data load ho raha hai.</div></div>
+<button class="btn small secondary" onclick="fetchList()">Refresh Now</button>
+</div>
+</section>
+
+<section>
+<h2>Overview</h2>
+<div class="subtitle">Ab tak ke saare records ka summary</div>
+<div class="grid" id="statCards"></div>
+</section>
+
+<section id="repeatSection">
+<h2>Repeat Cases (3+ baar flag hue)</h2>
+<div class="subtitle">Yeh students sabse zyada priority call ke liye hain</div>
+<div class="tablewrap"><table id="repeatTable"></table></div>
+</section>
+
+<section>
+<h2 id="formTitle">Nayi Entry Add Karo</h2>
+<div class="editbar" id="editBar">
+<span class="small">✏️ Ek purani entry edit ho rahi hai</span>
+<button class="btn small secondary" onclick="cancelEdit()">Cancel Edit</button>
+</div>
+
+<div class="upload" id="uploadBox">
+<div class="small">Zoom class ka screenshot yahan upload karo</div>
+<input type="file" id="fileInput" accept="image/*" style="margin-top:10px">
+<img id="preview" class="preview">
+</div>
+
+<div class="row3">
+<div>
+<label>Date</label>
+<input type="date" id="entryDate">
+</div>
+<div>
+<label>Batch / Class Name</label>
+<input type="text" id="entryBatch" placeholder="e.g. 5–6 AM Weight Loss" list="batchList">
+<datalist id="batchList"></datalist>
+</div>
+<div>
+<label>Reported By</label>
+<input type="text" id="entryReporter" placeholder="e.g. Instructor / Staff naam" list="reporterList">
+<datalist id="reporterList"></datalist>
+</div>
+</div>
+
+<label>Kaun Students Yoga Nahi Kar Rahe The? (naam type karo, Enter dabao)</label>
+<div class="tagbox">
+<input type="text" id="tagInput" placeholder="Student ka naam likho aur Enter dabao" list="nameList">
+<datalist id="nameList"></datalist>
+<button class="btn small" onclick="addTagFromInput()">Add</button>
+</div>
+<div class="chips" id="chips"></div>
+
+<label>Reason (sabse common wajah)</label>
+<select id="entryReason">
+<option value="">Select karo</option>
+<option>Phone use kar rahe the</option>
+<option>Camera off / dikh nahi rahe the</option>
+<option>Poses follow nahi kar rahe the</option>
+<option>Baat/distracted the</option>
+<option>Class chhod ke chale gaye</option>
+<option>Other</option>
+</select>
+
+<label>Extra Note (optional)</label>
+<textarea id="entryNote" placeholder="Koi additional detail"></textarea>
+
+<div class="footerbar">
+<button class="btn" id="saveBtn" onclick="saveEntry()">Save Entry</button>
+<button class="btn secondary" onclick="resetForm()">Clear Form</button>
+</div>
+</section>
+
+<section>
+<h2>Observation Log</h2>
+<div class="subtitle">Saari entries yahan dikhengi — student ke naam par click karke uska pura history dekh sakte ho</div>
+<div class="toolbar">
+<input type="text" id="search" placeholder="Student, batch ya reporter se search karo" oninput="renderLog()">
+<select id="sortBy" onchange="renderLog()">
+<option value="dateDesc">Newest first</option>
+<option value="dateAsc">Oldest first</option>
+</select>
+<button class="btn small outline" onclick="clearSearch()">Clear Filter</button>
+</div>
+<div class="tablewrap"><table id="logTable"></table></div>
+</section>
+
+<section>
+<h2>Export</h2>
+<p class="small">Data ab shared Google Sheet mein save hota hai. Yahan se sirf quick export ke liye:</p>
+<div class="footerbar">
+<button class="btn secondary" onclick="exportCSV()">Export CSV (list only)</button>
+<button class="btn secondary" onclick="exportCallList()">Export Repeat-Case Call List</button>
+</div>
+</section>
+
+</main>
+
+<div class="modal" id="modal" onclick="closeModal(event)">
+<span class="close" onclick="closeModal(event)">&times;</span>
+<img id="modalImg">
+</div>
+
+<script>
+const API_URL = 'https://script.google.com/macros/s/AKfycbzTI8FbpAgGInRnO8TNO9V9qFF6It_dVSap8k2scXxf-PNb1PyVdBkQF12NcgWJOvWu/exec';
+
+let log = [];
+document.getElementById('entryDate').value = new Date().toISOString().slice(0,10);
+let currentTags = [];
+let currentImage = null;
+let editingId = null;
+let pollTimer = null;
+
+function updateSyncBadge(state, msg){
+ const dot = document.getElementById('syncDot');
+ dot.className = 'dot ' + state;
+ const textMap = { on:'Connected — Shared Data', off:'Connection Issue', loading:'Connecting...' };
+ document.getElementById('syncText').textContent = textMap[state];
+ document.getElementById('syncSubtext').textContent = msg || (state==='on' ? 'Har ~6 second mein latest data automatically refresh hota hai.' : (state==='off' ? 'Internet check karo aur "Refresh Now" try karo.' : 'Shared data load ho raha hai.'));
+}
+
+async function fetchList(){
+ try{
+   const res = await fetch(API_URL + '?action=list&_=' + Date.now());
+   const data = await res.json();
+   if(Array.isArray(data)){
+     log = data;
+     updateSyncBadge('on');
+     try{ localStorage.setItem('jy_class_log_cache', JSON.stringify(log)); }catch(e){}
+     refreshSuggestions();
+     refreshAll();
+   } else {
+     updateSyncBadge('off', 'Server se galat response mila.');
+   }
+ }catch(err){
+   updateSyncBadge('off');
+   if(log.length === 0){
+     try{ log = JSON.parse(localStorage.getItem('jy_class_log_cache')||'[]'); refreshSuggestions(); refreshAll(); }catch(e){}
+   }
+ }
+}
+
+function startPolling(){
+ fetchList();
+ if(pollTimer) clearInterval(pollTimer);
+ pollTimer = setInterval(fetchList, 6000);
+}
+
+async function postAction(payload){
+ try{
+   await fetch(API_URL, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
+   await fetchList();
+   return true;
+ }catch(err){
+   alert('Save/Delete fail hua — internet check karo.');
+   return false;
+ }
+}
+
+function refreshSuggestions(){
+ const names = new Set(), batches = new Set(), reporters = new Set();
+ log.forEach(e=>{
+   (e.students||[]).forEach(n=>names.add(n));
+   if(e.batch) batches.add(e.batch);
+   if(e.reportedBy) reporters.add(e.reportedBy);
+ });
+ document.getElementById('nameList').innerHTML = [...names].map(n=>`<option value="${escapeAttr(n)}">`).join('');
+ document.getElementById('batchList').innerHTML = [...batches].map(b=>`<option value="${escapeAttr(b)}">`).join('');
+ document.getElementById('reporterList').innerHTML = [...reporters].map(r=>`<option value="${escapeAttr(r)}">`).join('');
+}
+
+document.getElementById('fileInput').addEventListener('change', e=>{
+ const f = e.target.files[0];
+ if(!f) return;
+ resizeImage(f, 700, 0.6, dataUrl=>{
+   currentImage = dataUrl;
+   const p = document.getElementById('preview');
+   p.src = dataUrl; p.style.display = 'block';
+ });
+});
+
+function resizeImage(file, maxWidth, quality, cb){
+ const reader = new FileReader();
+ reader.onload = e=>{
+   const img = new Image();
+   img.onload = ()=>{
+     let w = img.width, h = img.height;
+     if(w > maxWidth){ h = Math.round(h * (maxWidth/w)); w = maxWidth; }
+     const canvas = document.createElement('canvas');
+     canvas.width = w; canvas.height = h;
+     canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+     cb(canvas.toDataURL('image/jpeg', quality));
+   };
+   img.src = e.target.result;
+ };
+ reader.readAsDataURL(file);
+}
+
+const tagInput = document.getElementById('tagInput');
+tagInput.addEventListener('keydown', e=>{
+ if(e.key === 'Enter'){ e.preventDefault(); addTagFromInput(); }
+});
+function addTagFromInput(){
+ const v = tagInput.value.trim();
+ if(!v) return;
+ if(!currentTags.includes(v)) currentTags.push(v);
+ tagInput.value = '';
+ renderChips();
+}
+function removeTag(i){ currentTags.splice(i,1); renderChips(); }
+function renderChips(){
+ document.getElementById('chips').innerHTML = currentTags.map((t,i)=>
+   `<span class="chip">${escapeHtml(t)}<button onclick="removeTag(${i})">&times;</button></span>`
+ ).join('');
+}
+
+async function saveEntry(){
+ if(currentTags.length === 0){ alert('Kam se kam ek student ka naam add karo.'); return; }
+ const date = document.getElementById('entryDate').value || new Date().toISOString().slice(0,10);
+ const batch = document.getElementById('entryBatch').value.trim();
+ const reportedBy = document.getElementById('entryReporter').value.trim();
+ const reason = document.getElementById('entryReason').value;
+ const note = document.getElementById('entryNote').value.trim();
+
+ let entryData;
+ if(editingId){
+   const existing = log.find(e=>e.id === editingId) || {};
+   entryData = { id: editingId, date, batch, reportedBy, reason, note, students:[...currentTags] };
+   if(currentImage !== null){
+     entryData.screenshot = currentImage;
+     entryData.oldScreenshotFileId = existing.screenshotFileId || '';
+   } else {
+     entryData.screenshotExistingFileId = existing.screenshotFileId || '';
+   }
+ } else {
+   entryData = {
+     id: Date.now() + '_' + Math.random().toString(36).slice(2,7),
+     date, batch, reportedBy, reason, note,
+     students: [...currentTags]
+   };
+   if(currentImage) entryData.screenshot = currentImage;
+ }
+
+ const btn = document.getElementById('saveBtn');
+ btn.disabled = true; btn.textContent = 'Saving...';
+ const ok = await postAction({action:'save', entry: entryData});
+ btn.disabled = false;
+ if(ok){ cancelEdit(); resetForm(); }
+ else { btn.textContent = editingId ? 'Update Entry' : 'Save Entry'; }
+}
+
+function editEntry(id){
+ const e = log.find(x=>x.id === id);
+ if(!e) return;
+ editingId = id;
+ currentTags = [...(e.students||[])];
+ currentImage = null;
+ document.getElementById('entryDate').value = e.date;
+ document.getElementById('entryBatch').value = e.batch || '';
+ document.getElementById('entryReporter').value = e.reportedBy || '';
+ document.getElementById('entryReason').value = e.reason || '';
+ document.getElementById('entryNote').value = e.note || '';
+ renderChips();
+ const p = document.getElementById('preview');
+ if(e.screenshot){ p.src = e.screenshot; p.style.display = 'block'; } else { p.style.display = 'none'; }
+ document.getElementById('editBar').classList.add('show');
+ document.getElementById('formTitle').textContent = 'Entry Edit Karo';
+ document.getElementById('saveBtn').textContent = 'Update Entry';
+ document.getElementById('formTitle').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function cancelEdit(){
+ editingId = null;
+ document.getElementById('editBar').classList.remove('show');
+ document.getElementById('formTitle').textContent = 'Nayi Entry Add Karo';
+ document.getElementById('saveBtn').textContent = 'Save Entry';
+}
+
+function resetForm(){
+ currentTags = []; currentImage = null;
+ document.getElementById('chips').innerHTML = '';
+ document.getElementById('entryBatch').value = '';
+ document.getElementById('entryReporter').value = '';
+ document.getElementById('entryReason').value = '';
+ document.getElementById('entryNote').value = '';
+ document.getElementById('preview').style.display = 'none';
+ document.getElementById('fileInput').value = '';
+ document.getElementById('entryDate').value = new Date().toISOString().slice(0,10);
+}
+
+async function deleteEntry(id){
+ if(!confirm('Ye entry delete karni hai?')) return;
+ if(editingId === id) cancelEdit();
+ await postAction({action:'delete', id});
+}
+
+function studentCounts(){
+ const counts = {};
+ log.forEach(e=> (e.students||[]).forEach(n=>{
+   counts[n] = counts[n] || {count:0, batches:new Set(), lastDate:''};
+   counts[n].count++;
+   if(e.batch) counts[n].batches.add(e.batch);
+   if(!counts[n].lastDate || e.date > counts[n].lastDate) counts[n].lastDate = e.date;
+ }));
+ return counts;
+}
+
+function renderStats(){
+ const counts = studentCounts();
+ const names = Object.keys(counts);
+ const repeatCount = names.filter(n=>counts[n].count >= 3).length;
+ const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-7);
+ const weekAgoStr = weekAgo.toISOString().slice(0,10);
+ const thisWeek = log.filter(e=>e.date >= weekAgoStr).length;
+ const defs = [
+   ['Total Screenshots Logged', log.length, 'blue'],
+   ['Unique Students Flagged', names.length, 'yellow'],
+   ['Repeat Cases (3+)', repeatCount, 'red'],
+   ['Entries This Week', thisWeek, 'green']
+ ];
+ document.getElementById('statCards').innerHTML = defs.map(x=>
+   `<div class="card ${x[2]}"><div class="small">${x[0]}</div><div class="num">${x[1]}</div></div>`
+ ).join('');
+}
+
+function renderRepeatTable(){
+ const counts = studentCounts();
+ const rows = Object.keys(counts).map(n=>({name:n, ...counts[n]})).filter(r=>r.count >= 3);
+ rows.sort((a,b)=> b.count - a.count);
+ const table = document.getElementById('repeatTable');
+ if(rows.length === 0){
+   table.innerHTML = '<tr><td class="empty">Abhi koi repeat case nahi hai (3 ya usse zyada baar flag hone par yahan dikhega).</td></tr>';
+   return;
+ }
+ let h = '<thead><tr><th>Student</th><th>Times Flagged</th><th>Batches</th><th>Last Flagged</th><th></th></tr></thead><tbody>';
+ rows.forEach(r=>{
+   h += `<tr>
+     <td><b>${escapeHtml(r.name)}</b></td>
+     <td>${r.count}</td>
+     <td>${[...r.batches].map(escapeHtml).join(', ') || '—'}</td>
+     <td>${escapeHtml(r.lastDate)}</td>
+     <td><button class="btn small outline" onclick="filterByStudent('${escapeAttr(r.name)}')">View History</button></td>
+   </tr>`;
+ });
+ h += '</tbody>';
+ table.innerHTML = h;
+}
+
+function filterByStudent(name){
+ document.getElementById('search').value = name;
+ renderLog();
+ document.getElementById('logTable').scrollIntoView({behavior:'smooth', block:'center'});
+}
+function clearSearch(){ document.getElementById('search').value=''; renderLog(); }
+
+function renderLog(){
+ const q = document.getElementById('search').value.toLowerCase();
+ const sort = document.getElementById('sortBy').value;
+ const counts = studentCounts();
+ let rows = log.filter(e=>{
+   const hay = `${e.batch||''} ${e.reportedBy||''} ${(e.students||[]).join(' ')}`.toLowerCase();
+   return hay.includes(q);
+ });
+ rows.sort((a,b)=> sort === 'dateAsc' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date));
+ const table = document.getElementById('logTable');
+ if(rows.length === 0){
+   table.innerHTML = '<tr><td class="empty">Koi entry nahi mili. Upar se ek screenshot add karo ya filter clear karo.</td></tr>';
+   return;
+ }
+ let h = '<thead><tr><th>Date</th><th>Batch</th><th>Students</th><th>Reason</th><th>Note</th><th>Reported By</th><th>Screenshot</th><th></th></tr></thead><tbody>';
+ rows.forEach(e=>{
+   h += `<tr>
+     <td>${escapeHtml(e.date)}</td>
+     <td>${escapeHtml(e.batch||'—')}</td>
+     <td>${(e.students||[]).map(s=>{
+       const isRepeat = counts[s] && counts[s].count >= 3;
+       return `<button class="badge ${isRepeat?'repeat':''}" onclick="filterByStudent('${escapeAttr(s)}')">${escapeHtml(s)}${isRepeat?' 🔴':''}</button>`;
+     }).join('')}</td>
+     <td>${e.reason ? `<span class="badge reason">${escapeHtml(e.reason)}</span>` : '<span class="small">—</span>'}</td>
+     <td>${escapeHtml(e.note||'')}</td>
+     <td>${escapeHtml(e.reportedBy||'—')}</td>
+     <td>${e.screenshot ? `<img class="thumb" src="${e.screenshot}" onclick="openModal('${e.id}')">` : '<span class="small">—</span>'}</td>
+     <td>
+       <button class="btn small secondary" onclick="editEntry('${e.id}')">Edit</button>
+       <button class="btn small danger" onclick="deleteEntry('${e.id}')">Delete</button>
+     </td>
+   </tr>`;
+ });
+ h += '</tbody>';
+ table.innerHTML = h;
+}
+
+function refreshAll(){ renderStats(); renderRepeatTable(); renderLog(); }
+
+function openModal(id){
+ const e = log.find(x=>x.id === id);
+ if(!e || !e.screenshot) return;
+ document.getElementById('modalImg').src = e.screenshot;
+ document.getElementById('modal').style.display = 'flex';
+}
+function closeModal(e){
+ if(e.target.id === 'modal' || e.target.classList.contains('close')){
+   document.getElementById('modal').style.display = 'none';
+ }
+}
+
+function exportCSV(){
+ const headers = ['Date','Batch','Students','Reason','Note','Reported By'];
+ const lines = [headers];
+ log.forEach(e=> lines.push([e.date, e.batch||'', (e.students||[]).join('; '), e.reason||'', e.note||'', e.reportedBy||'']));
+ downloadCSV(lines, 'jairam_yoga_observation_log.csv');
+}
+
+function exportCallList(){
+ const counts = studentCounts();
+ const rows = Object.keys(counts).map(n=>({name:n, ...counts[n]})).filter(r=>r.count >= 3);
+ rows.sort((a,b)=> b.count - a.count);
+ const headers = ['Student','Times Flagged','Batches','Last Flagged Date'];
+ const lines = [headers];
+ rows.forEach(r=> lines.push([r.name, r.count, [...r.batches].join('; '), r.lastDate]));
+ downloadCSV(lines, 'jairam_yoga_repeat_case_call_list.csv');
+}
+
+function downloadCSV(lines, filename){
+ const csv = lines.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+ const a = document.createElement('a');
+ a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+ a.download = filename;
+ a.click();
+}
+
+function escapeHtml(x){ return String(x??'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])) }
+function escapeAttr(x){ return escapeHtml(x) }
+
+startPolling();
+</script>
+</body>
+</html>
